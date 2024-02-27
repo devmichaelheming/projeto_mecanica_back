@@ -12,7 +12,6 @@ import { ProductsModule } from "./products/products.module";
     ),
     UsersModule,
     ProductsModule,
-    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
