@@ -14,51 +14,70 @@ import { User, UserDocument } from "./entities/user.entity";
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  create(createUserDto: CreateUserDto) {
-    const user = new this.userModel(createUserDto);
-
-    return user.save().then(() => {
-      return {
-        message: "Usuário cadastrado com sucesso.",
-      };
-    });
-  }
-
-  findAll() {
-    return this.userModel.find();
-  }
-
-  findOne(id: string) {
-    return this.userModel.findById(id);
-  }
-
-  update(id: string, updateUserDto: UpdateUserDto) {
-    return this.userModel
-      .findByIdAndUpdate(
-        {
-          _id: id,
-        },
-        {
-          $set: updateUserDto,
-        },
-        {
-          new: true,
-        }
-      )
-      .then(() => {
-        return {
-          message: "Usuário atualizado com sucesso.",
-        };
-      });
-  }
-
-  async findUser(id: string): Promise<User> {
-    let user;
+  async create(createUserDto: CreateUserDto) {
     try {
-      user = await this.userModel.findById(id).exec();
-      return user || null;
+      const user = new this.userModel(createUserDto);
+      await user.save();
+      return { message: "Usuário cadastrado com sucesso." };
     } catch (error) {
-      return null;
+      throw new HttpException(
+        "Falha ao cadastrar usuário.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async findAll() {
+    try {
+      return await this.userModel.find().exec();
+    } catch (error) {
+      throw new HttpException(
+        "Falha ao buscar usuários.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async findOne(id: string) {
+    try {
+      const user = await this.userModel.findById(id).exec();
+      if (!user) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      return user;
+    } catch (error) {
+      throw new HttpException(
+        "Falha ao buscar usuário.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      const updatedUser = await this.userModel
+        .findByIdAndUpdate(id, updateUserDto, { new: true })
+        .exec();
+      if (!updatedUser) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      return { message: "Usuário atualizado com sucesso." };
+    } catch (error) {
+      throw new HttpException(
+        "Falha ao atualizar usuário.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  private async findUser(id: string): Promise<User> {
+    try {
+      return await this.userModel.findById(id).exec();
+    } catch (error) {
+      throw new HttpException(
+        "Falha ao buscar usuário.",
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 
@@ -70,22 +89,18 @@ export class UsersService {
     return user;
   }
 
-  async delete(id: string): Promise<any> {
+  async delete(id: string) {
     try {
-      return this.userModel
-        .deleteOne({
-          _id: id,
-        })
-        .exec()
-        .then(() => {
-          return {
-            message: "Usuário removido com sucesso.",
-          };
-        });
+      const user = await this.findUser(id);
+      if (!user) {
+        throw new NotFoundException("Usuário não encontrado.");
+      }
+      await this.userModel.deleteOne({ _id: id }).exec();
+      return { message: "Usuário removido com sucesso." };
     } catch (error) {
       throw new HttpException(
-        "Ocorreu um erro ao deletar o usuário.",
-        HttpStatus.BAD_REQUEST
+        "Falha ao remover usuário.",
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
