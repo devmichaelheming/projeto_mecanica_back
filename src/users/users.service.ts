@@ -18,7 +18,7 @@ export class UsersService {
     try {
       const user = new this.userModel(createUserDto);
       await user.save();
-      return { message: "Usuário cadastrado com sucesso." };
+      return { message: "Usuário cadastrado com sucesso.", sucesso: true };
     } catch (error) {
       throw new HttpException(
         "Falha ao cadastrar usuário.",
@@ -61,7 +61,7 @@ export class UsersService {
       if (!updatedUser) {
         throw new NotFoundException("Usuário não encontrado.");
       }
-      return { message: "Usuário atualizado com sucesso." };
+      return { message: "Usuário atualizado com sucesso.", sucesso: true };
     } catch (error) {
       throw new HttpException(
         "Falha ao atualizar usuário.",
@@ -96,7 +96,7 @@ export class UsersService {
         throw new NotFoundException("Usuário não encontrado.");
       }
       await this.userModel.deleteOne({ _id: id }).exec();
-      return { message: "Usuário removido com sucesso." };
+      return { message: "Usuário removido com sucesso.", sucesso: true };
     } catch (error) {
       throw new HttpException(
         "Falha ao remover usuário.",
