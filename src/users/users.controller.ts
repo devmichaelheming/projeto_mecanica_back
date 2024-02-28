@@ -40,7 +40,7 @@ export class UsersController {
   }
 
   @Delete("/:id")
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   delete(@Param("id") id) {
     return this.usersService.delete(id);
   }
