@@ -8,7 +8,7 @@ async function bootstrap() {
       "https://projeto-mecanica-front.vercel.app",
       "http://localhost:3000",
     ],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Accept", "Content-Type"],
     preflightContinue: false,
   });

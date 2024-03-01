@@ -15,16 +15,33 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
   async create(createUserDto: CreateUserDto) {
-    try {
-      const user = new this.userModel(createUserDto);
-      await user.save();
-      return { message: "Usuário cadastrado com sucesso.", sucesso: true };
-    } catch (error) {
-      throw new HttpException(
-        "Falha ao cadastrar usuário.",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+    const errors = [];
+
+    // Verificar se o email já está em uso
+    const existingUserByEmail = await this.userModel
+      .findOne({ email: createUserDto.email })
+      .exec();
+    if (existingUserByEmail) {
+      errors.push("O Email já está em uso.");
     }
+
+    // Verificar se o CPF já está em uso
+    const existingUserByCpf = await this.userModel
+      .findOne({ cpf: createUserDto.cpf })
+      .exec();
+    if (existingUserByCpf) {
+      errors.push("O CPF já está em uso.");
+    }
+
+    if (errors.length > 0) {
+      // Se houver mais de um erro, adicionar todas as mensagens de erro à variável de erros
+      throw new HttpException({ errors: errors }, HttpStatus.BAD_REQUEST);
+    }
+
+    // Se não houver erros, então é seguro salvar o novo usuário no banco de dados
+    const user = new this.userModel(createUserDto);
+    await user.save();
+    return { message: "Usuário cadastrado com sucesso.", sucesso: true };
   }
 
   async findAll() {
@@ -54,20 +71,37 @@ export class UsersService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    try {
-      const updatedUser = await this.userModel
-        .findByIdAndUpdate(id, updateUserDto, { new: true })
-        .exec();
-      if (!updatedUser) {
-        throw new NotFoundException("Usuário não encontrado.");
-      }
-      return { message: "Usuário atualizado com sucesso.", sucesso: true };
-    } catch (error) {
-      throw new HttpException(
-        "Falha ao atualizar usuário.",
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+    const errors = [];
+
+    // Verificar se o email já está em uso
+    const existingUserByEmail = await this.userModel
+      .findOne({ email: updateUserDto.email })
+      .exec();
+    if (existingUserByEmail && existingUserByEmail._id.toString() !== id) {
+      errors.push("Email já está em uso.");
     }
+
+    // Verificar se o CPF já está em uso
+    const existingUserByCpf = await this.userModel
+      .findOne({ cpf: updateUserDto.cpf })
+      .exec();
+    if (existingUserByCpf && existingUserByCpf._id.toString() !== id) {
+      errors.push("CPF já está em uso.");
+    }
+
+    if (errors.length > 0) {
+      // Se houver mais de um erro, adicionar todas as mensagens de erro à variável de erros
+      throw new HttpException({ errors: errors }, HttpStatus.BAD_REQUEST);
+    }
+
+    // Se não houver erros, então é seguro atualizar o usuário no banco de dados
+    const updatedUser = await this.userModel
+      .findByIdAndUpdate(id, updateUserDto, { new: true })
+      .exec();
+    if (!updatedUser) {
+      throw new NotFoundException("Usuário não encontrado.");
+    }
+    return { message: "Usuário atualizado com sucesso.", sucesso: true };
   }
 
   private async findUser(id: string): Promise<User> {
