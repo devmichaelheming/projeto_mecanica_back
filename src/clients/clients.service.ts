@@ -9,6 +9,10 @@ import { Model } from "mongoose";
 import { CreateClientDto } from "./dto/create-client.dto";
 import { UpdateClientDto } from "./dto/update-client.dto";
 import { Client, ClientDocument } from "./entities/client.entity";
+import { v4 as uuidv4 } from "uuid";
+import { CreateVehicleDto } from "./dto/create-vehicle.dto";
+import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
+import { Vehicle } from "./entities/vehicle.entity";
 
 @Injectable()
 export class ClientsService {
@@ -57,15 +61,31 @@ export class ClientsService {
       throw new HttpException({ errors: errors }, HttpStatus.BAD_REQUEST);
     }
 
-    // Se não houver erros, então é seguro salvar o novo cliente no banco de dados
+    // Criar IDs aleatórios para os veículos
+    createClientDto.vehicles.forEach((vehicle) => {
+      vehicle.id = uuidv4();
+    });
+
+    // Crie um novo cliente
     const client = new this.clientModel(createClientDto);
     await client.save();
+
     return { message: "Cliente cadastrado com sucesso.", sucesso: true };
   }
 
   async findAll() {
     try {
-      return await this.clientModel.find().exec();
+      const clients = await this.clientModel.find().exec();
+      if (!clients) {
+        throw new NotFoundException("Não foram encontrados clientes.");
+      }
+
+      const clientsWithRenamedId = clients.map((client) => {
+        const { _id, ...rest } = client.toObject();
+        return { id: _id, ...rest };
+      });
+
+      return clientsWithRenamedId;
     } catch (error) {
       throw new HttpException(
         "Falha ao buscar clientes.",
@@ -164,5 +184,84 @@ export class ClientsService {
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
+  }
+
+  async addVehicleToClient(
+    clientId: string,
+    createVehicleDto: CreateVehicleDto
+  ): Promise<{ message: string; sucesso: boolean }> {
+    const client = await this.clientModel.findById(clientId).exec();
+    if (!client) {
+      throw new NotFoundException("Cliente não encontrado.");
+    }
+
+    // Gerar um ID único para o veículo usando uuid
+    const newVehicleId = uuidv4();
+    const newVehicle: Vehicle = {
+      id: newVehicleId,
+      ...createVehicleDto,
+    };
+
+    client.vehicles.push(newVehicle);
+    await client.save();
+
+    return { message: "Veículos cadastrado com sucesso.", sucesso: true };
+  }
+
+  async getVehiclesOfClient(clientId: string) {
+    const client = await this.clientModel.findById(clientId).exec();
+    if (!client) {
+      throw new NotFoundException("Clientes não encontrados.");
+    }
+
+    return client.vehicles;
+  }
+
+  async updateVehicleOfClient(
+    clientId: string,
+    vehicleId: string,
+    updateVehicleDto: UpdateVehicleDto
+  ): Promise<{ message: string; sucesso: boolean }> {
+    const client = await this.clientModel.findById(clientId).exec();
+    if (!client) {
+      throw new NotFoundException("Cliente não encontrado.");
+    }
+
+    // Encontrar o veículo pelo ID
+    const vehicleIndex = client.vehicles.findIndex(
+      (vehicle) => vehicle.id === vehicleId
+    );
+    if (vehicleIndex === -1) {
+      throw new NotFoundException("Veículo não encontrado.");
+    }
+
+    // Atualizar o veículo com os novos dados do DTO
+    client.vehicles[vehicleIndex] = {
+      ...client.vehicles[vehicleIndex],
+      ...updateVehicleDto,
+    };
+
+    await client.save();
+    return { message: "Veículos atualizado com sucesso.", sucesso: true };
+  }
+
+  async deleteVehicleOfClient(clientId: string, vehicleId: string) {
+    const client = await this.clientModel.findById(clientId).exec();
+    if (!client) {
+      throw new NotFoundException("Cliente não encontrado.");
+    }
+
+    const vehicleIndex = client.vehicles.findIndex(
+      (vehicle) => vehicle.id === vehicleId
+    );
+
+    if (vehicleIndex === -1) {
+      throw new NotFoundException("Veículo não encontrado.");
+    }
+
+    client.vehicles.splice(vehicleIndex, 1);
+    await client.save();
+
+    return { message: "Veículo removido com sucesso.", sucesso: true };
   }
 }

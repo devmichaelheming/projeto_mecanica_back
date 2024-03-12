@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { HydratedDocument } from "mongoose";
+import { Vehicle } from "./vehicle.entity";
 
 export type ClientDocument = HydratedDocument<Client>;
 
-@Schema()
+@Schema({ timestamps: true })
 export class Client {
   @Prop()
   typePerson: string;
@@ -52,6 +53,9 @@ export class Client {
 
   @Prop()
   estado: string;
+
+  @Prop()
+  vehicles: Vehicle[];
 }
 
 export const ClientSchema = SchemaFactory.createForClass(Client);
