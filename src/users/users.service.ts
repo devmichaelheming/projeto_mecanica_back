@@ -46,7 +46,17 @@ export class UsersService {
 
   async findAll() {
     try {
-      return await this.userModel.find().exec();
+      const users = await this.userModel.find().exec();
+      if (!users) {
+        throw new NotFoundException("Não foram encontrados usuários.");
+      }
+
+      const usersWithRenamedId = users.map((client) => {
+        const { _id, ...rest } = client.toObject();
+        return { id: _id, ...rest };
+      });
+
+      return usersWithRenamedId;
     } catch (error) {
       throw new HttpException(
         "Falha ao buscar usuários.",

@@ -8,7 +8,9 @@ import {
   Max,
   IsNumber,
   IsOptional,
+  IsArray,
 } from "class-validator";
+import { CreateVehicleDto } from "./create-vehicle.dto";
 
 export class CreateClientDto {
   @IsString()
@@ -89,4 +91,8 @@ export class CreateClientDto {
   @IsString()
   @IsNotEmpty()
   estado: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  vehicles: CreateVehicleDto[];
 }
