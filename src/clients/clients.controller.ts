@@ -41,10 +41,10 @@ export class ClientsController {
     return this.clientsService.update(id, updateClientDto);
   }
 
-  @Delete("/:id")
+  @Patch("activate-or-deactivate/:id")
   @HttpCode(HttpStatus.OK)
-  delete(@Param("id") id) {
-    return this.clientsService.delete(id);
+  activateOrDeactivate(@Param("id") id: string) {
+    return this.clientsService.activateOrDeactivate(id);
   }
 
   @Get(":clientId/vehicles")

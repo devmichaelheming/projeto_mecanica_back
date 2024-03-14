@@ -6,6 +6,7 @@ import {
   Matches,
   Min,
   Max,
+  IsOptional,
 } from "class-validator";
 
 export class CreateUserDto {
@@ -34,6 +35,6 @@ export class CreateUserDto {
   cpf: string;
 
   @IsBoolean()
-  @IsNotEmpty()
+  @IsOptional()
   active: boolean;
 }

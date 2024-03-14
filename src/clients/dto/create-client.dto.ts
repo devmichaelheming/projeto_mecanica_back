@@ -92,6 +92,10 @@ export class CreateClientDto {
   @IsNotEmpty()
   estado: string;
 
+  @IsBoolean()
+  @IsOptional()
+  active: boolean;
+
   @IsArray()
   @IsNotEmpty()
   vehicles: CreateVehicleDto[];
