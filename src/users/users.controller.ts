@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   HttpCode,
   HttpStatus,
 } from "@nestjs/common";
@@ -39,9 +38,9 @@ export class UsersController {
     return this.usersService.update(id, updateUserDto);
   }
 
-  @Delete("/:id")
+  @Patch("activate-or-deactivate/:id")
   @HttpCode(HttpStatus.OK)
-  delete(@Param("id") id) {
-    return this.usersService.delete(id);
+  activateOrDeactivate(@Param("id") id: string) {
+    return this.usersService.activateOrDeactivate(id);
   }
 }

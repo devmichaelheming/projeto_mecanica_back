@@ -5,7 +5,6 @@ import { AppService } from "./app.service";
 import { UsersModule } from "./users/users.module";
 import { ProductsModule } from "./products/products.module";
 import { ClientsModule } from "./clients/clients.module";
-import { VehicleModule } from "./vehicle/vehicles.module";
 
 @Module({
   imports: [
@@ -15,7 +14,6 @@ import { VehicleModule } from "./vehicle/vehicles.module";
     UsersModule,
     ProductsModule,
     ClientsModule,
-    VehicleModule,
   ],
   controllers: [AppController],
   providers: [AppService],

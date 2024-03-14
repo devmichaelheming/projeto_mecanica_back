@@ -133,17 +133,24 @@ export class UsersService {
     return user;
   }
 
-  async delete(id: string) {
+  async activateOrDeactivate(id: string) {
     try {
       const user = await this.findUser(id);
       if (!user) {
         throw new NotFoundException("Usuário não encontrado.");
       }
-      await this.userModel.deleteOne({ _id: id }).exec();
-      return { message: "Usuário removido com sucesso.", sucesso: true };
+      await this.userModel
+        .findByIdAndUpdate(id, { active: !user.active }, { new: true })
+        .exec();
+      return {
+        message: `O Usuário '${user.name}' foi ${
+          user.active ? "inativado" : "ativado"
+        } com sucesso.`,
+        sucesso: true,
+      };
     } catch (error) {
       throw new HttpException(
-        "Falha ao remover usuário.",
+        "Falha ao ativar/inativar usuário.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }

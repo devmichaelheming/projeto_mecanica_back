@@ -55,6 +55,9 @@ export class Client {
   estado: string;
 
   @Prop()
+  active: boolean;
+
+  @Prop()
   vehicles: Vehicle[];
 }
 

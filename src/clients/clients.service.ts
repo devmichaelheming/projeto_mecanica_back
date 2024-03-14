@@ -112,6 +112,8 @@ export class ClientsService {
   async update(id: string, updateClientDto: UpdateClientDto) {
     const errors = [];
 
+    const existingClient = await this.clientModel.findById(id).exec();
+
     // Verificar se o email já está em uso
     const existingClientByEmail = await this.clientModel
       .findOne({ email: updateClientDto.email })
@@ -120,20 +122,24 @@ export class ClientsService {
       errors.push("Email já está em uso.");
     }
 
-    // Verificar se o CPF já está em uso
-    const existingClientByCpf = await this.clientModel
-      .findOne({ cpf: updateClientDto.cpf })
-      .exec();
-    if (existingClientByCpf && existingClientByCpf._id.toString() !== id) {
-      errors.push("CPF já está em uso.");
+    // Verificar se o CPF foi fornecido e é diferente do CPF atual do cliente
+    if (updateClientDto.cpf && updateClientDto.cpf !== existingClient.cpf) {
+      const existingClientByCpf = await this.clientModel
+        .findOne({ cpf: updateClientDto.cpf })
+        .exec();
+      if (existingClientByCpf && existingClientByCpf._id.toString() !== id) {
+        errors.push("CPF já está em uso.");
+      }
     }
 
-    // Verificar se o CNPJ já está em uso
-    const existingClientByCnpj = await this.clientModel
-      .findOne({ cnpj: updateClientDto.cnpj })
-      .exec();
-    if (existingClientByCnpj && existingClientByCnpj._id.toString() !== id) {
-      errors.push("CNPJ já está em uso.");
+    // Verificar se o CNPJ foi fornecido e é diferente do CNPJ atual do cliente
+    if (updateClientDto.cnpj && updateClientDto.cnpj !== existingClient.cnpj) {
+      const existingClientByCnpj = await this.clientModel
+        .findOne({ cnpj: updateClientDto.cnpj })
+        .exec();
+      if (existingClientByCnpj && existingClientByCnpj._id.toString() !== id) {
+        errors.push("CNPJ já está em uso.");
+      }
     }
 
     if (errors.length > 0) {
@@ -170,17 +176,24 @@ export class ClientsService {
     return client;
   }
 
-  async delete(id: string) {
+  async activateOrDeactivate(id: string) {
     try {
       const client = await this.findClient(id);
       if (!client) {
         throw new NotFoundException("Cliente não encontrado.");
       }
-      await this.clientModel.deleteOne({ _id: id }).exec();
-      return { message: "Cliente removido com sucesso.", sucesso: true };
+      await this.clientModel
+        .findByIdAndUpdate(id, { active: !client.active }, { new: true })
+        .exec();
+      return {
+        message: `O Cliente '${client.name}' foi ${
+          client.active ? "inativado" : "ativado"
+        } com sucesso.`,
+        sucesso: true,
+      };
     } catch (error) {
       throw new HttpException(
-        "Falha ao remover cliente.",
+        "Falha ao ativar/inativar cliente.",
         HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
