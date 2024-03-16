@@ -31,29 +31,29 @@ export class ClientsService {
       errors.push("O Email já está em uso.");
     }
 
-    // Verificar se o CPF ou CNPJ já está em uso, dependendo do tipo de pessoa
-    if (createClientDto.typePerson === "fisica") {
-      const existingClientByCpf = await this.clientModel
-        .findOne({ cpf: createClientDto.cpf })
-        .exec();
-      if (existingClientByCpf) {
-        errors.push("O CPF já está em uso.");
-      }
-      if (!createClientDto.name || !createClientDto.surname) {
-        errors.push("Nome e sobrenome são obrigatórios para pessoas físicas.");
-      }
-    } else if (createClientDto.typePerson === "juridica") {
-      const existingClientByCnpj = await this.clientModel
-        .findOne({ cnpj: createClientDto.cnpj })
-        .exec();
-      if (existingClientByCnpj) {
-        errors.push("O CNPJ já está em uso.");
-      }
-      if (!createClientDto.razaoSocial || !createClientDto.nomeFantasia) {
-        errors.push(
-          "Razão social e nome fantasia são obrigatórios para pessoas jurídicas."
-        );
-      }
+    // Verificar se o documento (CPF ou CNPJ) já está em uso
+    const existingClientByDocument = await this.clientModel
+      .findOne({ document: createClientDto.document })
+      .exec();
+    if (existingClientByDocument) {
+      errors.push(
+        `O ${
+          createClientDto.typePerson === "fisica" ? "CPF" : "CNPJ"
+        } já está em uso.`
+      );
+    }
+
+    // Verificar se o nome e sobrenome (ou razão social e nome fantasia) são fornecidos
+    if (
+      (!createClientDto.name || !createClientDto.surname) &&
+      createClientDto.typePerson === "fisica"
+    ) {
+      errors.push("Nome e sobrenome são obrigatórios.");
+    } else if (
+      createClientDto.typePerson === "juridica" &&
+      !createClientDto.razaoSocial
+    ) {
+      errors.push("Razão social é obrigatória para pessoas jurídicas.");
     }
 
     if (errors.length > 0) {
@@ -73,9 +73,30 @@ export class ClientsService {
     return { message: "Cliente cadastrado com sucesso.", sucesso: true };
   }
 
+  // async findAll() {
+  //   try {
+  //     const clients = await this.clientModel.find().exec();
+  //     if (!clients) {
+  //       throw new NotFoundException("Não foram encontrados clientes.");
+  //     }
+
+  //     const clientsWithRenamedId = clients.map((client) => {
+  //       const { _id, ...rest } = client.toObject();
+  //       return { id: _id, ...rest };
+  //     });
+
+  //     return clientsWithRenamedId;
+  //   } catch (error) {
+  //     throw new HttpException(
+  //       "Falha ao buscar clientes.",
+  //       HttpStatus.INTERNAL_SERVER_ERROR
+  //     );
+  //   }
+  // }
+
   async findAll() {
     try {
-      const clients = await this.clientModel.find().exec();
+      const clients = await this.clientModel.find().select("-__v").exec();
       if (!clients) {
         throw new NotFoundException("Não foram encontrados clientes.");
       }
@@ -123,9 +144,12 @@ export class ClientsService {
     }
 
     // Verificar se o CPF foi fornecido e é diferente do CPF atual do cliente
-    if (updateClientDto.cpf && updateClientDto.cpf !== existingClient.cpf) {
+    if (
+      updateClientDto.document &&
+      updateClientDto.document !== existingClient.document
+    ) {
       const existingClientByCpf = await this.clientModel
-        .findOne({ cpf: updateClientDto.cpf })
+        .findOne({ document: updateClientDto.document })
         .exec();
       if (existingClientByCpf && existingClientByCpf._id.toString() !== id) {
         errors.push("CPF já está em uso.");
@@ -133,9 +157,12 @@ export class ClientsService {
     }
 
     // Verificar se o CNPJ foi fornecido e é diferente do CNPJ atual do cliente
-    if (updateClientDto.cnpj && updateClientDto.cnpj !== existingClient.cnpj) {
+    if (
+      updateClientDto.document &&
+      updateClientDto.document !== existingClient.document
+    ) {
       const existingClientByCnpj = await this.clientModel
-        .findOne({ cnpj: updateClientDto.cnpj })
+        .findOne({ document: updateClientDto.document })
         .exec();
       if (existingClientByCnpj && existingClientByCnpj._id.toString() !== id) {
         errors.push("CNPJ já está em uso.");

@@ -3,7 +3,7 @@ import { HydratedDocument } from "mongoose";
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class Vehicle {
   @Prop({ unique: true })
   id: string;

@@ -17,19 +17,8 @@ export class CreateClientDto {
   @IsNotEmpty()
   typePerson: string;
 
-  @IsOptional()
   @IsString()
-  @Matches(/^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}$/, {
-    message: "Formato de CPF inválido.",
-  })
-  cpf?: string;
-
-  @IsOptional()
-  @IsString()
-  @Matches(/^(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2}|\d{14})$/, {
-    message: "Formato de CNPJ inválido.",
-  })
-  cnpj?: string;
+  document: string;
 
   @IsOptional()
   @IsString()
@@ -43,7 +32,7 @@ export class CreateClientDto {
   @Max(100)
   surname?: string;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
   @Min(3)
   @Max(200)
@@ -55,8 +44,8 @@ export class CreateClientDto {
   @Max(200)
   nomeFantasia?: string;
 
+  @IsOptional()
   @IsEmail()
-  @IsNotEmpty()
   @IsString()
   email: string;
 
@@ -97,6 +86,6 @@ export class CreateClientDto {
   active: boolean;
 
   @IsArray()
-  @IsNotEmpty()
-  vehicles: CreateVehicleDto[];
+  @IsOptional()
+  vehicles?: CreateVehicleDto[];
 }
