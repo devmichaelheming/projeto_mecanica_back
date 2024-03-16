@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, Min, Max } from "class-validator";
+import { IsNotEmpty, IsString, Min, Max, IsOptional } from "class-validator";
 
 export class CreateVehicleDto {
   @IsString()
@@ -35,13 +35,13 @@ export class CreateVehicleDto {
   plate: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Min(3)
   @Max(17)
   chassisNumber: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   @Min(3)
   @Max(6)
   engineNumber: string;

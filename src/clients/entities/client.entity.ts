@@ -4,16 +4,13 @@ import { Vehicle } from "./vehicle.entity";
 
 export type ClientDocument = HydratedDocument<Client>;
 
-@Schema({ timestamps: true })
+@Schema()
 export class Client {
   @Prop()
   typePerson: string;
 
   @Prop()
-  cpf: string;
-
-  @Prop()
-  cnpj: string;
+  document: string;
 
   @Prop()
   name: string;
