@@ -15,7 +15,7 @@ import { AuthModule } from "./auth/auth.module";
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.URL_CONNECTION),
-    // AuthModule,
+    AuthModule,
     UsersModule,
     ProductsModule,
     ClientsModule
