@@ -9,7 +9,7 @@ async function bootstrap() {
       "http://localhost:3000",
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Accept", "Content-Type"],
+    allowedHeaders: ["Accept", "Content-Type", 'Authorization'],
     preflightContinue: false,
   });
   await app.listen(process.env.PORT || 4000);

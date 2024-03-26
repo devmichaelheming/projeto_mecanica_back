@@ -5,19 +5,28 @@ import { SignInDto } from "./dto/signin.dto";
 import { AuthGuard } from "./auth.guard";
 import { Public } from "./metadataKeys";
 
+export interface ResponseSignIn {
+    sucesso?: boolean;
+    user?: {
+        name: string;
+        email: string;
+        access_token: string;
+    }
+}
+
 @Controller("auth")
 export class AuthController {
     constructor(private readonly authService: AuthService) { }
 
     @Public()
     @Post('/signup')
-    signUp(@Body() signUnDto: SignUpDto): Promise<{ access_token: string }> {
+    signUp(@Body() signUnDto: SignUpDto): Promise<ResponseSignIn> {
         return this.authService.signUp(signUnDto)
     }
 
     @Public()
-    @Get('/signin')
-    signIn(@Body() signInDto: SignInDto): Promise<{ access_token: string }> {
+    @Post('/signin')
+    signIn(@Body() signInDto: SignInDto): Promise<ResponseSignIn> {
         return this.authService.signIn(signInDto);
     }
 

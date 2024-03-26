@@ -7,8 +7,7 @@ import {
 
 export class SignInDto {
     @IsNotEmpty()
-    @IsEmail({}, { message: 'Please enter correct email' })
-    email: string;
+    user: string;
 
     @IsNotEmpty()
     @IsString()

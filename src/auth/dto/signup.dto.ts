@@ -2,8 +2,10 @@ import {
     IsEmail,
     IsNotEmpty,
     IsString,
+    Matches,
     Min,
 } from "class-validator";
+
 
 export class SignUpDto {
     @IsString()
@@ -13,6 +15,13 @@ export class SignUpDto {
     @IsNotEmpty()
     @IsEmail({}, { message: 'Please enter correct email' })
     email: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @Matches(/^[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}-?[0-9]{2}$/, {
+        message: "Invalid CPF format",
+    })
+    cpf: string;
 
     @IsNotEmpty()
     @IsString()

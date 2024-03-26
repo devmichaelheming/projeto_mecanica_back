@@ -8,8 +8,11 @@ export class Auth {
     @Prop()
     name: string;
 
-    @Prop({ unique: [true, 'Duplicate email entered'] })
+    @Prop({ unique: [true, 'Este e-mail já existe.'] })
     email: string;
+
+    @Prop({ unique: [true, 'Este cpf já existe.'] })
+    cpf: string;
 
     @Prop()
     password: string;
