@@ -27,10 +27,7 @@ import { APP_GUARD } from '@nestjs/core';
     MongooseModule.forFeature([{ name: Auth.name, schema: AuthSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, {
-    provide: APP_GUARD,
-    useClass: AuthGuard,
-  },],
+  providers: [AuthService, JwtStrategy],
   exports: [JwtStrategy, PassportModule],
 })
 export class AuthModule { }
