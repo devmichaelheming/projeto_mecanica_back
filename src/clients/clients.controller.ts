@@ -18,7 +18,7 @@ import { UpdateVehicleDto } from "./dto/update-vehicle.dto";
 
 @Controller("clients")
 export class ClientsController {
-  constructor(private readonly clientsService: ClientsService) {}
+  constructor(private readonly clientsService: ClientsService) { }
 
   @Get()
   async findAll(): Promise<Client[]> {
