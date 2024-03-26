@@ -10,7 +10,7 @@ async function bootstrap() {
     ],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Accept", "Content-Type", 'Authorization'],
-    preflightContinue: false,
+    preflightContinue: true,
   });
   await app.listen(process.env.PORT || 4000);
 }
