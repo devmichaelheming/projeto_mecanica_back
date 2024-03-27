@@ -18,6 +18,7 @@ export class CreateClientDto {
   typePerson: string;
 
   @IsString()
+  @IsNotEmpty()
   document: string;
 
   @IsOptional()
