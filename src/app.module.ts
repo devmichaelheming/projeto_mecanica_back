@@ -14,7 +14,7 @@ import { AuthModule } from "./auth/auth.module";
       envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb+srv://omnistack:fuMlBTSOg7nRpH5T@projeto-mecanica.gcfma9g.mongodb.net/'),
+    MongooseModule.forRoot(process.env.URL_CONNECTION),
     AuthModule,
     UsersModule,
     ProductsModule,
